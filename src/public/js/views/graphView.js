@@ -152,7 +152,7 @@ export function mountGraphView(ctx) {
   function seedSimulationPositions(rawGraph) {
     const prevPos = new Map(simNodes.map((n) => [n.id, { x: n.x, y: n.y, vx: n.vx, vy: n.vy }]));
     const count = rawGraph.nodes.length;
-    const clusterRingRadius = Math.max(110, Math.sqrt(count) * 44);
+    const clusterRingRadius = Math.max(210, Math.sqrt(count) * 74);
 
     simNodes = rawGraph.nodes.map((node, idx) => {
       const prev = prevPos.get(node.id);
@@ -192,10 +192,10 @@ export function mountGraphView(ctx) {
   function stepPhysics() {
     if (simAlpha < 0.008 || simNodes.length === 0) return;
 
-    const repulsion = 4200;
-    const springLen = 115;
-    const springK = 0.032;
-    const gravity = 0.015;
+    const repulsion = 12000;
+    const springLen = 195;
+    const springK = 0.03;
+    const gravity = 0.01;
     const damping = 0.82;
 
     // Pairwise repulsion
@@ -369,8 +369,27 @@ export function mountGraphView(ctx) {
         ctx2d.textAlign = 'center';
         ctx2d.textBaseline = 'top';
         const label = node.title.length > 26 ? `${node.title.slice(0, 24)}…` : node.title;
+        const textWidth = ctx2d.measureText(label).width;
+        const padX = 6;
+        const padY = 2.5;
+        const boxX = node.x - textWidth / 2 - padX;
+        const boxY = node.y + node.radius + 4;
+        const boxW = textWidth + padX * 2;
+        const boxH = fontSize + padY * 2;
+
+        ctx2d.save();
+        ctx2d.globalAlpha = inFocus ? 0.9 : 0.25;
+        ctx2d.fillStyle = pal.bgElevated;
+        ctx2d.beginPath();
+        ctx2d.roundRect(boxX, boxY, boxW, boxH, 5);
+        ctx2d.fill();
+        ctx2d.lineWidth = 1 / Math.max(0.5, cam.zoom);
+        ctx2d.strokeStyle = isSelected || onPath ? pal.accent : pal.hairline;
+        ctx2d.stroke();
+        ctx2d.restore();
+
         ctx2d.fillStyle = node.isGhost ? pal.inkMuted : pal.inkPrimary;
-        ctx2d.fillText(label, node.x, node.y + node.radius + 5);
+        ctx2d.fillText(label, node.x, boxY + padY);
       }
 
       ctx2d.restore();
@@ -699,7 +718,7 @@ export function mountGraphView(ctx) {
     if (!destroyed) {
       setTimeout(() => {
         if (!destroyed) fitGraph();
-      }, 450);
+      }, 520);
     }
   });
   rafId = requestAnimationFrame(drawGraph);

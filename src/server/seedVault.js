@@ -239,15 +239,15 @@ Exploring how [[SQLite WAL & FTS5 Engine]] powers zero-latency command palette s
   store.createBoard({
     title: 'System Architecture Map',
     description: 'Interactive spatial topology linking Tessera core engines and notes.',
-    viewport: { x: 40, y: 40, zoom: 0.95 },
+    viewport: { x: 40, y: 40, zoom: 0.92 },
     nodes: [
       {
         id: 'grp_core',
         type: 'group',
         x: 40,
         y: 32,
-        w: 640,
-        h: 416,
+        w: 728,
+        h: 480,
         title: 'Core Storage & Algorithms',
         color: 'neutral'
       },
@@ -256,7 +256,7 @@ Exploring how [[SQLite WAL & FTS5 Engine]] powers zero-latency command palette s
         type: 'note',
         noteId: hub.note.id,
         x: 72,
-        y: 88,
+        y: 96,
         w: 264,
         h: 168,
         title: hub.note.title,
@@ -266,8 +266,8 @@ Exploring how [[SQLite WAL & FTS5 Engine]] powers zero-latency command palette s
         id: 'node_sqlite',
         type: 'note',
         noteId: sqliteNote.note.id,
-        x: 384,
-        y: 88,
+        x: 456,
+        y: 96,
         w: 264,
         h: 168,
         title: sqliteNote.note.title,
@@ -278,7 +278,7 @@ Exploring how [[SQLite WAL & FTS5 Engine]] powers zero-latency command palette s
         type: 'note',
         noteId: fsrsNote.note.id,
         x: 72,
-        y: 280,
+        y: 328,
         w: 264,
         h: 144,
         title: fsrsNote.note.title,
@@ -288,8 +288,8 @@ Exploring how [[SQLite WAL & FTS5 Engine]] powers zero-latency command palette s
         id: 'node_graph',
         type: 'note',
         noteId: graphNote.note.id,
-        x: 384,
-        y: 280,
+        x: 456,
+        y: 328,
         w: 264,
         h: 144,
         title: graphNote.note.title,
@@ -298,9 +298,9 @@ Exploring how [[SQLite WAL & FTS5 Engine]] powers zero-latency command palette s
       {
         id: 'node_sticky',
         type: 'sticky',
-        x: 736,
-        y: 120,
-        w: 240,
+        x: 824,
+        y: 96,
+        w: 248,
         h: 168,
         title: 'Design Principle',
         body: 'Single SQLite truth store + deterministic AST extraction ensures notes, graphs, tasks, and FSRS decks never drift out of sync.',
@@ -311,7 +311,7 @@ Exploring how [[SQLite WAL & FTS5 Engine]] powers zero-latency command palette s
       { id: 'e1', from: 'node_hub', to: 'node_sqlite', label: 'WAL + FTS5', style: 'solid' },
       { id: 'e2', from: 'node_hub', to: 'node_fsrs', label: 'Deck Sync', style: 'solid' },
       { id: 'e3', from: 'node_hub', to: 'node_graph', label: 'PageRank', style: 'solid' },
-      { id: 'e4', from: 'node_sticky', to: 'node_hub', label: 'Invariant', style: 'dashed' }
+      { id: 'e4', from: 'node_sticky', to: 'node_sqlite', label: 'Invariant', style: 'dashed' }
     ]
   });
 

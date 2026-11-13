@@ -75,22 +75,35 @@ export function mountTasksView(ctx) {
   const prioFilterEl = container.querySelector('#tasks-priority-filter');
   const folderFilterEl = container.querySelector('#tasks-folder-filter');
 
+  function cleanTaskDisplay(text) {
+    const cleaned = String(text || '')
+      .replace(/\[\[([^\]|]+)\|([^\]]+)\]\]/g, '$2')
+      .replace(/\[\[([^\]]+)\]\]/g, '$1')
+      .replace(/(?:^|\s)!(?:high|medium|low)\b/gi, ' ')
+      .replace(/(?:^|\s)@\d{4}-\d{2}-\d{2}\b/g, ' ')
+      .replace(/(?:^|\s)#(?:doing|in-progress|wip|todo|done)\b/gi, ' ')
+      .replace(/\s{2,}/g, ' ')
+      .trim();
+    return cleaned || String(text || '');
+  }
+
   function renderTaskCard(t) {
     const prio = PRIORITY_STYLE[t.priority] || PRIORITY_STYLE.medium;
     const todayStr = new Date().toISOString().slice(0, 10);
     const isOverdue = t.dueDate && !t.done && t.dueDate < todayStr;
+    const displayTitle = cleanTaskDisplay(t.text);
     return `
       <div class="task-card">
         <input
           type="checkbox"
           data-task-note="${escapeHtml(t.noteId)}"
           data-task-line="${t.lineNo}"
-          aria-label="Toggle task: ${escapeHtml(t.text)}"
+          aria-label="Toggle task: ${escapeHtml(displayTitle)}"
           ${t.done ? 'checked' : ''}
         >
         <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px">
           <div style="font-size:13.5px;line-height:1.45;${t.done ? 'text-decoration:line-through;color:var(--ink-muted)' : ''}">
-            ${escapeHtml(t.text)}
+            ${escapeHtml(displayTitle)}
           </div>
           <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center">
             <span class="meta-badge" style="background:${prio.bg};color:${prio.color}">${prio.label}</span>

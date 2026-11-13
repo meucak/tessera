@@ -128,8 +128,15 @@ export function mountRecallView(ctx) {
   }
 
   function buildHeatmapSvg(heatmap) {
-    const days = (heatmap || []).slice(-91);
-    const cols = Math.ceil(days.length / 7) || 13;
+    const byDay = new Map((heatmap || []).map((entry) => [entry.day, entry]));
+    const days = [];
+    const today = new Date();
+    for (let offset = 90; offset >= 0; offset--) {
+      const d = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() - offset));
+      const iso = d.toISOString().slice(0, 10);
+      days.push(byDay.get(iso) || { day: iso, count: 0, passed: 0 });
+    }
+    const cols = Math.ceil(days.length / 7);
     const cell = 13;
     const gap = 3;
     const w = cols * (cell + gap);
@@ -145,12 +152,12 @@ export function mountRecallView(ctx) {
         if (item.count >= 6) fill = 'var(--sage)';
         else if (item.count >= 2) fill = 'var(--cobalt)';
         else if (item.count >= 1) fill = 'var(--accent)';
-        return `<rect x="${x}" y="${y}" width="${cell}" height="${cell}" rx="3" fill="${fill}" opacity="${item.count > 0 ? '0.9' : '1'}"><title>${escapeHtml(item.day)}: ${item.count} review(s)</title></rect>`;
+        return `<rect x="${x}" y="${y}" width="${cell}" height="${cell}" rx="3" fill="${fill}" opacity="${item.count > 0 ? '0.92' : '1'}"><title>${escapeHtml(item.day)}: ${item.count} review(s)</title></rect>`;
       })
       .join('');
 
     return `
-      <svg viewBox="0 0 ${w} ${h}" width="100%" style="max-height:112px;display:block" role="img" aria-label="90-day study consistency heatmap">
+      <svg viewBox="0 0 ${w} ${h}" width="100%" style="max-height:112px;display:block" role="img" aria-label="91-day study consistency heatmap">
         ${cells}
       </svg>
     `;
@@ -266,13 +273,21 @@ export function mountRecallView(ctx) {
     `;
   }
 
+  const STATE_LABELS = ['New', 'Learning', 'Review', 'Relearning'];
+
+  function formatCardState(raw) {
+    if (typeof raw === 'number' && STATE_LABELS[raw]) return STATE_LABELS[raw];
+    if (/^[0-3]$/.test(String(raw))) return STATE_LABELS[Number(raw)];
+    return String(raw || 'New');
+  }
+
   function renderBrowser() {
     if (!recallData) return;
     const q = browserSearch.toLowerCase();
     const cards = (recallData.cards || []).filter((c) => {
       if (browserFilter === 'due' && !c.isDue) return false;
       if (browserFilter === 'mastered' && Number(c.stability || 0) < 21) return false;
-      if (browserFilter === 'new' && c.state !== 'New' && Number(c.reps || 0) > 0) return false;
+      if (browserFilter === 'new' && formatCardState(c.state) !== 'New' && Number(c.reps || 0) > 0) return false;
       if (q && !c.front.toLowerCase().includes(q) && !c.back.toLowerCase().includes(q) && !c.noteTitle.toLowerCase().includes(q)) {
         return false;
       }
@@ -293,7 +308,7 @@ export function mountRecallView(ctx) {
               <div style="font-size:12.5px;color:var(--ink-secondary);margin-top:2px">${escapeHtml(c.back)}</div>
             </div>
             <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-              <span class="meta-badge">${escapeHtml(c.state)} · S=${Number(c.stability || 0).toFixed(1)}d</span>
+              <span class="meta-badge">${escapeHtml(formatCardState(c.state))} · S=${Number(c.stability || 0).toFixed(1)}d</span>
               <span class="meta-badge" style="${c.isDue ? 'background:var(--accent-soft);color:var(--accent)' : ''}">
                 ${c.isDue ? 'Due now' : `Due ${String(c.dueAt || '').slice(0, 10)}`}
               </span>

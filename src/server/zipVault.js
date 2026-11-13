@@ -93,6 +93,9 @@ export function buildZipBuffer(entries) {
   return Buffer.concat([...localChunks, centralDir, eocd]);
 }
 
+const MAX_ZIP_ENTRIES = 1000;
+const MAX_ZIP_ENTRY_BYTES = 10 * 1024 * 1024;
+
 export function parseZipBuffer(buf) {
   const data = Buffer.isBuffer(buf) ? buf : Buffer.from(buf);
   // Find End of Central Directory (0x06054b50)
@@ -108,6 +111,9 @@ export function parseZipBuffer(buf) {
   }
 
   const totalEntries = data.readUInt16LE(eocdOffset + 10);
+  if (totalEntries > MAX_ZIP_ENTRIES) {
+    throw new Error(`ZIP archive exceeds maximum entry limit (${MAX_ZIP_ENTRIES})`);
+  }
   const cdOffset = data.readUInt32LE(eocdOffset + 16);
 
   const entries = [];
@@ -119,12 +125,20 @@ export function parseZipBuffer(buf) {
     const method = data.readUInt16LE(ptr + 10);
     const expectedCrc = data.readUInt32LE(ptr + 16);
     const compSize = data.readUInt32LE(ptr + 20);
+    const uncompSize = data.readUInt32LE(ptr + 24);
     const nameLen = data.readUInt16LE(ptr + 28);
     const extraLen = data.readUInt16LE(ptr + 30);
     const commentLen = data.readUInt16LE(ptr + 32);
     const localOffset = data.readUInt32LE(ptr + 42);
     const name = data.subarray(ptr + 46, ptr + 46 + nameLen).toString('utf8');
     ptr += 46 + nameLen + extraLen + commentLen;
+
+    if (!name || name.includes('\0') || name.startsWith('/') || name.includes('..')) {
+      throw new Error(`Unsafe ZIP entry path rejected: ${name}`);
+    }
+    if (uncompSize > MAX_ZIP_ENTRY_BYTES) {
+      throw new Error(`ZIP entry exceeds size limit (${MAX_ZIP_ENTRY_BYTES} bytes): ${name}`);
+    }
 
     if (data.readUInt32LE(localOffset) !== 0x04034b50) {
       throw new Error(`Invalid local header for entry ${name}`);
@@ -136,9 +150,12 @@ export function parseZipBuffer(buf) {
 
     let outData;
     if (method === 0) {
+      if (compData.length > MAX_ZIP_ENTRY_BYTES) {
+        throw new Error(`ZIP entry exceeds size limit: ${name}`);
+      }
       outData = Buffer.from(compData);
     } else if (method === 8) {
-      outData = zlib.inflateRawSync(compData);
+      outData = zlib.inflateRawSync(compData, { maxOutputLength: MAX_ZIP_ENTRY_BYTES });
     } else {
       throw new Error(`Unsupported ZIP compression method ${method} for ${name}`);
     }

@@ -388,7 +388,7 @@ export function parseMarkdown(content, options = {}) {
       const rawCode = codeLines.join('\n');
       wordCount += rawCode.trim() ? rawCode.trim().split(/\s+/).length : 0;
       htmlBlocks.push(
-        `<div class="code-block" data-lang="${escapeHtml(lang)}"><div class="code-header"><span class="code-lang">${escapeHtml(lang)}</span><button type="button" class="btn-copy-code" data-copy-code>Copy</button></div><pre><code>${highlightCode(rawCode, lang)}</code></pre></div>`
+        `<div class="code-block" data-lang="${escapeHtml(lang)}"><div class="code-header"><span class="code-lang">${escapeHtml(lang)}</span><button type="button" class="btn-copy-code" data-copy-code>Copy</button></div><pre tabindex="0"><code>${highlightCode(rawCode, lang)}</code></pre></div>`
       );
       continue;
     }

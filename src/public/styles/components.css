@@ -164,9 +164,9 @@
   border: 1px solid transparent;
 }
 .filter-pill.is-active {
-  background: var(--accent-soft);
-  color: var(--accent);
-  border-color: var(--accent);
+  background: var(--accent-btn-bg);
+  color: var(--accent-btn-ink);
+  border-color: var(--accent-btn-bg);
 }
 
 .sidebar-taxonomy {
@@ -175,8 +175,6 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  max-height: 156px;
-  overflow-y: auto;
 }
 
 .tax-group-label {
@@ -190,11 +188,11 @@
 .tax-chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: 5px;
 }
 
 .tax-chip {
-  padding: 4px 8px;
+  padding: 4px 9px;
   min-height: 30px;
   border-radius: var(--radius-sm);
   font-size: 11.5px;
@@ -204,9 +202,9 @@
   color: var(--ink-secondary);
 }
 .tax-chip.is-active {
-  background: var(--accent-soft);
-  color: var(--accent);
-  border-color: var(--accent);
+  background: var(--accent-btn-bg);
+  color: var(--accent-btn-ink);
+  border-color: var(--accent-btn-bg);
 }
 
 .note-list {
@@ -274,10 +272,13 @@
 }
 
 .meta-badge {
-  padding: 1px 6px;
+  padding: 2px 7px;
   border-radius: 4px;
   background: var(--bg-subtle);
+  font-size: 11px;
   font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* Studio Editor Header & Toolbar */
@@ -838,6 +839,7 @@
   height: 3000px;
   overflow: visible;
   pointer-events: none;
+  z-index: 2;
 }
 .board-edge-hit {
   pointer-events: stroke;
@@ -866,6 +868,7 @@
 .board-node:not(.is-group) {
   z-index: 5;
 }
+.board-node[data-color="neutral"] { border-top: 4px solid var(--hairline-strong); }
 .board-node[data-color="terracotta"] { border-top: 4px solid var(--accent); }
 .board-node[data-color="cobalt"] { border-top: 4px solid var(--cobalt); }
 .board-node[data-color="sage"] { border-top: 4px solid var(--sage); }

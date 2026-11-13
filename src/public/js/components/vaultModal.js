@@ -66,7 +66,10 @@ export function openVaultModal({ onImported }) {
                 const buf = await f.arrayBuffer();
                 const bytes = new Uint8Array(buf);
                 let bin = '';
-                for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+                const CHUNK = 0x8000;
+                for (let i = 0; i < bytes.length; i += CHUNK) {
+                  bin += String.fromCharCode(...bytes.subarray(i, i + CHUNK));
+                }
                 const res = await api.importVault({ zipBase64: btoa(bin) });
                 totalNotes += res.importedNotes;
                 totalBoards += res.importedBoards;

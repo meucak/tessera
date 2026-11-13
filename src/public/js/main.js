@@ -182,7 +182,6 @@ const actions = {
             await syncNotesIndex();
             await refreshCounts();
             await actions.openNote(res.note.id);
-            if (activeController?.refreshList) await activeController.refreshList();
             showToast(`Created "${res.note.title}"`);
           });
         }
@@ -195,7 +194,6 @@ const actions = {
       await syncNotesIndex();
       await refreshCounts();
       await actions.openNote(res.note.id);
-      if (activeController?.refreshList) await activeController.refreshList();
       showToast(res.created ? `Created today's journal: ${res.note.title}` : `Opened ${res.note.title}`);
     } catch (err) {
       showToast(`Daily journal error: ${err.message}`);
@@ -231,6 +229,11 @@ function connectWebSocket() {
 
   ws.addEventListener('open', () => {
     setSyncStatus('is-live', 'Live Sync');
+    try {
+      ws.send(JSON.stringify({ type: 'hello', clientId: CLIENT_ID }));
+    } catch {
+      // ignore closed socket
+    }
   });
 
   ws.addEventListener('message', async (ev) => {

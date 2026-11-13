@@ -83,11 +83,17 @@ const SLASH_COMMANDS = [
 
 function formatRelativeDate(ts) {
   if (!ts) return '—';
-  const diff = Date.now() - Number(ts);
+  const ms = typeof ts === 'number' && Number.isFinite(ts)
+    ? ts
+    : /^\d+$/.test(String(ts))
+      ? Number(ts)
+      : Date.parse(String(ts));
+  if (!Number.isFinite(ms)) return '—';
+  const diff = Math.max(0, Date.now() - ms);
   if (diff < 60_000) return 'just now';
   if (diff < 3_600_000) return `${Math.floor(diff / 60_000)}m ago`;
   if (diff < 86_400_000) return `${Math.floor(diff / 3_600_000)}h ago`;
-  return new Date(Number(ts)).toISOString().slice(0, 10);
+  return new Date(ms).toISOString().slice(0, 10);
 }
 
 /**
@@ -95,11 +101,11 @@ function formatRelativeDate(ts) {
  */
 function updateFrontmatterKey(content, key, value) {
   const normalized = String(content ?? '').replace(/\r\n/g, '\n');
-  const { hasFrontmatter, bodyLines } = parseFrontmatter(normalized);
-  if (!hasFrontmatter) {
+  const lines = normalized.split('\n');
+  if (lines[0]?.trim() !== '---') {
     return `---\n${key}: ${value}\n---\n\n${normalized}`;
   }
-  const lines = normalized.split('\n');
+  const { bodyLines } = parseFrontmatter(normalized);
   let closeIdx = -1;
   for (let i = 1; i < lines.length; i++) {
     if (lines[i].trim() === '---') {
@@ -139,6 +145,7 @@ export function mountStudioView(ctx) {
   let saveTimer = null;
   let inspectorCollapsed = localStorage.getItem('tessera.inspectorCollapsed') === '1';
   let destroyed = false;
+  let openSeq = 0;
 
   // Autocomplete state
   let acState = {
@@ -194,7 +201,7 @@ export function mountStudioView(ctx) {
             </div>
             <button type="button" id="btn-toggle-serif" class="btn-secondary btn-sm" aria-pressed="${savedSerif ? 'true' : 'false'}" title="Toggle Serif Reading Typography">Serif</button>
             <button type="button" id="btn-note-history" class="btn-secondary btn-sm" title="Compare Version History">History</button>
-            <button type="button" id="btn-toggle-inspector" class="btn-secondary btn-sm" aria-expanded="${!inspectorCollapsed}" title="Toggle Right Inspector">Inspector</button>
+            <button type="button" id="btn-toggle-inspector" class="btn-secondary btn-sm" aria-expanded="${window.innerWidth > 1120 && !inspectorCollapsed ? 'true' : 'false'}" title="Toggle Right Inspector">Inspector</button>
             <button type="button" id="btn-delete-note" class="icon-btn" title="Delete Note" aria-label="Delete Note">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
             </button>
@@ -356,7 +363,7 @@ export function mountStudioView(ctx) {
                   <button type="button" class="inspector-link-btn" data-open-note="${escapeHtml(m.sourceId)}">
                     ${escapeHtml(m.sourceTitle)}
                   </button>
-                  <button type="button" class="btn-secondary" style="min-height:32px;padding:0 10px;font-size:11.5px" data-link-mention="${escapeHtml(m.sourceId)}">
+                  <button type="button" class="btn-secondary btn-sm" data-link-mention="${escapeHtml(m.sourceId)}">
                     Link
                   </button>
                 </div>
@@ -373,7 +380,7 @@ export function mountStudioView(ctx) {
             (g) => `
               <div class="inspector-card" style="flex-direction:row;align-items:center;justify-content:space-between">
                 <span style="font-weight:600;color:var(--ink-secondary)">[[${escapeHtml(g.targetRaw)}]]</span>
-                <button type="button" class="btn-secondary" style="min-height:32px;padding:0 10px;font-size:11.5px" data-create-ghost="${escapeHtml(g.targetRaw)}">
+                <button type="button" class="btn-secondary btn-sm" data-create-ghost="${escapeHtml(g.targetRaw)}">
                   + Create
                 </button>
               </div>
@@ -404,10 +411,12 @@ export function mountStudioView(ctx) {
 
           <label for="prop-status">Status</label>
           <select id="prop-status" class="prop-input">
-            <option value="seedling"${note.status === 'seedling' ? ' selected' : ''}>Seedling</option>
-            <option value="budding"${note.status === 'budding' ? ' selected' : ''}>Budding</option>
-            <option value="evergreen"${note.status === 'evergreen' ? ' selected' : ''}>Evergreen</option>
-            <option value="archived"${note.status === 'archived' ? ' selected' : ''}>Archived</option>
+            ${[...new Set(['active', 'draft', 'seedling', 'budding', 'evergreen', 'archived', note.status].filter(Boolean))]
+              .map(
+                (st) =>
+                  `<option value="${escapeHtml(st)}"${note.status === st ? ' selected' : ''}>${escapeHtml(st.charAt(0).toUpperCase() + st.slice(1))}</option>`
+              )
+              .join('')}
           </select>
 
           <span>Versions</span>
@@ -466,7 +475,7 @@ export function mountStudioView(ctx) {
 
   function renderTaxonomy() {
     const folders = Object.entries(listData.folders || {}).sort((a, b) => a[0].localeCompare(b[0]));
-    const tags = Object.entries(listData.tags || {}).sort((a, b) => b[1] - a[1]).slice(0, 14);
+    const tags = Object.entries(listData.tags || {}).sort((a, b) => b[1] - a[1]).slice(0, 6);
 
     taxonomyEl.innerHTML = `
       <div>
@@ -560,11 +569,12 @@ export function mountStudioView(ctx) {
   }
 
   async function openNoteByIdOrSlug(idOrSlug) {
+    const seq = ++openSeq;
     if (dirty && activeDetail?.note) {
       await flushSave();
     }
     const detail = await api.getNote(idOrSlug);
-    if (destroyed || !detail?.note) return;
+    if (destroyed || seq !== openSeq || !detail?.note) return;
 
     activeDetail = detail;
     state.activeNoteId = detail.note.id;
@@ -580,7 +590,12 @@ export function mountStudioView(ctx) {
 
     renderPreview(detail.parsed);
     renderInspector(detail.parsed);
-    renderNoteList();
+
+    if (!listData.notes.some((n) => n.id === detail.note.id)) {
+      await loadNoteList();
+    } else {
+      renderNoteList();
+    }
 
     // Close mobile sidebar after choosing note
     if (state.isMobileSidebarOpen) {
@@ -846,6 +861,11 @@ export function mountStudioView(ctx) {
   });
 
   inspectorToggleBtn.addEventListener('click', () => {
+    if (window.innerWidth <= 1120) {
+      const open = shellEl.classList.toggle('is-mobile-inspector-open');
+      inspectorToggleBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      return;
+    }
     inspectorCollapsed = !inspectorCollapsed;
     shellEl.classList.toggle('is-inspector-collapsed', inspectorCollapsed);
     inspectorToggleBtn.setAttribute('aria-expanded', inspectorCollapsed ? 'false' : 'true');
@@ -1093,9 +1113,9 @@ export function mountStudioView(ctx) {
   return {
     refreshList: async () => {
       await loadNoteList();
-      if (activeDetail?.note && !dirty) {
+      if (state.activeNoteId && activeDetail?.note?.id === state.activeNoteId && !dirty && !saving) {
         try {
-          await openNoteByIdOrSlug(activeDetail.note.id);
+          await openNoteByIdOrSlug(state.activeNoteId);
         } catch {
           // ignore if deleted remotely
         }

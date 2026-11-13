@@ -39,8 +39,8 @@ html[data-theme="light"] {
   --hairline: rgba(24, 24, 22, 0.11);
   --hairline-strong: rgba(24, 24, 22, 0.22);
 
-  --accent: #B83B14;
-  --accent-hover: #972E0E;
+  --accent: #A0300D;
+  --accent-hover: #822509;
   --accent-btn-bg: #B83B14;
   --accent-btn-ink: #FFFFFF;
   --accent-soft: rgba(184, 59, 20, 0.11);

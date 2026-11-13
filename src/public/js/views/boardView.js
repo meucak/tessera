@@ -43,6 +43,7 @@ export function mountBoardView(ctx) {
           <button type="button" id="btn-add-note-card" class="btn-secondary btn-sm">+ Link Note</button>
           <button type="button" id="btn-add-group" class="btn-secondary btn-sm">+ Group</button>
           <select id="select-node-color" class="prop-input" aria-label="Selected card accent color" style="width:118px">
+            <option value="neutral">Neutral</option>
             <option value="terracotta">Terracotta</option>
             <option value="cobalt">Cobalt</option>
             <option value="sage">Sage</option>
@@ -143,18 +144,66 @@ export function mountBoardView(ctx) {
     renderMinimap();
   }
 
+  function getNodeKind(n) {
+    return n?.kind || n?.type || 'sticky';
+  }
+
   function getEdgeCoords(src, dst) {
-    const x1 = src.x + (src.w || 260);
-    const y1 = src.y + (src.h || 140) / 2;
-    const x2 = dst.x;
-    const y2 = dst.y + (dst.h || 140) / 2;
-    const dx = Math.max(48, Math.abs(x2 - x1) * 0.45);
+    const sw = src.w || 260;
+    const sh = src.h || 140;
+    const dw = dst.w || 260;
+    const dh = dst.h || 140;
+    const scx = src.x + sw / 2;
+    const scy = src.y + sh / 2;
+    const dcx = dst.x + dw / 2;
+    const dcy = dst.y + dh / 2;
+
+    let x1;
+    let y1;
+    let x2;
+    let y2;
+    let d;
+
+    if (dst.x >= src.x + sw - 16) {
+      // Source sits cleanly left of destination: right edge -> left edge
+      x1 = src.x + sw;
+      y1 = scy;
+      x2 = dst.x;
+      y2 = dcy;
+      const dx = Math.max(48, Math.abs(x2 - x1) * 0.45);
+      d = `M ${x1} ${y1} C ${x1 + dx} ${y1}, ${x2 - dx} ${y2}, ${x2} ${y2}`;
+    } else if (src.x >= dst.x + dw - 16) {
+      // Source sits right of destination: left edge -> right edge
+      x1 = src.x;
+      y1 = scy;
+      x2 = dst.x + dw;
+      y2 = dcy;
+      const dx = Math.max(48, Math.abs(x2 - x1) * 0.45);
+      d = `M ${x1} ${y1} C ${x1 - dx} ${y1}, ${x2 + dx} ${y2}, ${x2} ${y2}`;
+    } else if (dcy >= scy) {
+      // Source above destination: bottom edge -> top edge
+      x1 = scx;
+      y1 = src.y + sh;
+      x2 = dcx;
+      y2 = dst.y;
+      const dy = Math.max(44, Math.abs(y2 - y1) * 0.45);
+      d = `M ${x1} ${y1} C ${x1} ${y1 + dy}, ${x2} ${y2 - dy}, ${x2} ${y2}`;
+    } else {
+      // Source below destination: top edge -> bottom edge
+      x1 = scx;
+      y1 = src.y;
+      x2 = dcx;
+      y2 = dst.y + dh;
+      const dy = Math.max(44, Math.abs(y2 - y1) * 0.45);
+      d = `M ${x1} ${y1} C ${x1} ${y1 - dy}, ${x2} ${y2 + dy}, ${x2} ${y2}`;
+    }
+
     return {
       x1,
       y1,
       x2,
       y2,
-      d: `M ${x1} ${y1} C ${x1 + dx} ${y1}, ${x2 - dx} ${y2}, ${x2} ${y2}`,
+      d,
       mx: (x1 + x2) / 2,
       my: (y1 + y2) / 2
     };
@@ -169,15 +218,17 @@ export function mountBoardView(ctx) {
         const dst = byId.get(edge.to);
         if (!src || !dst) return '';
         const { d, mx, my } = getEdgeCoords(src, dst);
+        const isDashed = edge.style === 'dashed';
+        const labelWidth = edge.label ? Math.max(64, edge.label.length * 7 + 20) : 0;
         return `
           <g class="board-edge-group" data-edge-id="${escapeHtml(edge.id)}">
-            <path d="${d}" stroke="var(--accent)" stroke-width="2.2" fill="none" marker-end="url(#tessera-arrow)"></path>
+            <path d="${d}" stroke="var(--accent)" stroke-width="2.2" ${isDashed ? 'stroke-dasharray="6 4"' : ''} fill="none" marker-end="url(#tessera-arrow)"></path>
             <path d="${d}" stroke="transparent" stroke-width="14" fill="none" class="board-edge-hit" data-remove-edge="${escapeHtml(edge.id)}">
               <title>Click to disconnect edge</title>
             </path>
             ${
               edge.label
-                ? `<rect x="${mx - 42}" y="${my - 11}" width="84" height="22" rx="6" fill="var(--bg-elevated)" stroke="var(--hairline)"></rect>
+                ? `<rect x="${mx - labelWidth / 2}" y="${my - 11}" width="${labelWidth}" height="22" rx="6" fill="var(--bg-elevated)" stroke="var(--hairline)"></rect>
                    <text x="${mx}" y="${my + 4}" text-anchor="middle" font-size="11" font-weight="600" fill="var(--ink-secondary)">${escapeHtml(edge.label)}</text>`
                 : ''
             }
@@ -199,7 +250,7 @@ export function mountBoardView(ctx) {
     const rects = activeBoard.nodes
       .map(
         (n) =>
-          `<rect x="${n.x}" y="${n.y}" width="${n.w}" height="${n.h}" rx="12" fill="${n.kind === 'group' ? 'none' : 'var(--accent-soft)'}" stroke="var(--accent)" stroke-width="14"></rect>`
+          `<rect x="${n.x}" y="${n.y}" width="${n.w}" height="${n.h}" rx="12" fill="${getNodeKind(n) === 'group' ? 'none' : 'var(--accent-soft)'}" stroke="var(--accent)" stroke-width="14"></rect>`
       )
       .join('');
 
@@ -211,25 +262,27 @@ export function mountBoardView(ctx) {
 
   function renderNodes() {
     if (!activeBoard) return;
-    const ordered = [...activeBoard.nodes].sort((a, b) => (a.kind === 'group' ? -1 : b.kind === 'group' ? 1 : 0));
+    const ordered = [...activeBoard.nodes].sort((a, b) => (getNodeKind(a) === 'group' ? -1 : getNodeKind(b) === 'group' ? 1 : 0));
 
     nodesLayerEl.innerHTML = ordered
       .map((n) => {
-        const isGroup = n.kind === 'group';
+        const nodeKind = getNodeKind(n);
+        const isGroup = nodeKind === 'group';
         const isSelected = n.id === selectedNodeId;
-        const linkedNote = n.noteId
-          ? (state.notes || []).find((note) => note.id === n.noteId || note.slug === n.noteSlug)
-          : null;
+        const linkedNote =
+          n.noteId || n.noteSlug
+            ? (state.notes || []).find((note) => note.id === n.noteId || note.slug === n.noteSlug)
+            : null;
 
         let bodyHtml = '';
         if (isGroup) {
-          bodyHtml = `<span style="color:var(--ink-muted);font-size:12px">Spatial Cluster Frame</span>`;
-        } else if (n.kind === 'note' && linkedNote) {
+          bodyHtml = '';
+        } else if (nodeKind === 'note' && linkedNote) {
           bodyHtml = `
-            <p style="margin:0 0 8px 0">${escapeHtml(linkedNote.snippet || n.body || '')}</p>
-            <div style="display:flex;justify-content:space-between;align-items:center;gap:6px">
+            <p style="margin:0 0 8px 0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${escapeHtml(linkedNote.snippet || n.body || '')}</p>
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;margin-top:auto">
               <span class="meta-badge">${escapeHtml(linkedNote.folder || 'Note')}</span>
-              <button type="button" class="btn-secondary" style="min-height:32px;padding:0 10px;font-size:11.5px" data-open-linked-note="${escapeHtml(linkedNote.id)}">Open Note</button>
+              <button type="button" class="btn-secondary btn-sm" data-open-linked-note="${escapeHtml(linkedNote.id)}">Open</button>
             </div>
           `;
         } else {
@@ -240,7 +293,7 @@ export function mountBoardView(ctx) {
           <div
             class="board-node${isGroup ? ' is-group' : ''}${isSelected ? ' is-selected' : ''}"
             data-node-id="${escapeHtml(n.id)}"
-            data-color="${escapeHtml(n.color || 'terracotta')}"
+            data-color="${escapeHtml(n.color || (isGroup ? 'neutral' : 'terracotta'))}"
             style="left:${n.x}px;top:${n.y}px;width:${n.w}px;height:${n.h}px"
           >
             <div class="board-node-header" data-drag-handle="${escapeHtml(n.id)}">
@@ -265,7 +318,7 @@ export function mountBoardView(ctx) {
       .join('');
 
     const sel = activeBoard.nodes.find((n) => n.id === selectedNodeId);
-    if (sel) colorSelect.value = sel.color || 'terracotta';
+    if (sel) colorSelect.value = sel.color || (getNodeKind(sel) === 'group' ? 'neutral' : 'terracotta');
     renderEdges();
     renderMinimap();
   }
@@ -296,9 +349,11 @@ export function mountBoardView(ctx) {
     const rect = stageEl.getBoundingClientRect();
     const centerWorldX = snap8((rect.width / 2 - x) / zoom - (nodeSpec.w || 260) / 2 + (Math.random() - 0.5) * 64);
     const centerWorldY = snap8((rect.height / 2 - y) / zoom - (nodeSpec.h || 150) / 2 + (Math.random() - 0.5) * 64);
+    const resolvedKind = nodeSpec.kind || nodeSpec.type || 'sticky';
     const newNode = {
       id: makeUid('card'),
-      kind: nodeSpec.kind || 'sticky',
+      type: resolvedKind,
+      kind: resolvedKind,
       title: nodeSpec.title || 'New Card',
       body: nodeSpec.body || '',
       noteId: nodeSpec.noteId || undefined,
@@ -375,7 +430,7 @@ export function mountBoardView(ctx) {
       .map(
         (n) => `
           <g transform="translate(${n.x},${n.y})">
-            <rect width="${n.w}" height="${n.h}" rx="12" fill="${n.kind === 'group' ? 'none' : cardBg}" stroke="${border}" stroke-width="1.5" ${n.kind === 'group' ? 'stroke-dasharray="6 4"' : ''} />
+            <rect width="${n.w}" height="${n.h}" rx="12" fill="${getNodeKind(n) === 'group' ? 'none' : cardBg}" stroke="${border}" stroke-width="1.5" ${getNodeKind(n) === 'group' ? 'stroke-dasharray="6 4"' : ''} />
             <text x="14" y="26" font-family="sans-serif" font-size="14" font-weight="700" fill="${ink}">${escapeHtml(n.title || '')}</text>
             <text x="14" y="52" font-family="sans-serif" font-size="12" fill="${inkMuted}">${escapeHtml((n.body || '').slice(0, 64))}</text>
           </g>
@@ -685,7 +740,7 @@ export function mountBoardView(ctx) {
   container.querySelector('#btn-arrange-grid').addEventListener('click', () => {
     if (!activeBoard || activeBoard.nodes.length === 0) return;
     pushSnapshot();
-    const cards = activeBoard.nodes.filter((n) => n.kind !== 'group');
+    const cards = activeBoard.nodes.filter((n) => getNodeKind(n) !== 'group');
     const cols = Math.max(2, Math.ceil(Math.sqrt(cards.length)));
     cards.forEach((n, idx) => {
       n.x = 64 + (idx % cols) * 320;
@@ -700,7 +755,7 @@ export function mountBoardView(ctx) {
   container.querySelector('#btn-arrange-radial').addEventListener('click', () => {
     if (!activeBoard || activeBoard.nodes.length === 0) return;
     pushSnapshot();
-    const cards = activeBoard.nodes.filter((n) => n.kind !== 'group');
+    const cards = activeBoard.nodes.filter((n) => getNodeKind(n) !== 'group');
     const radius = Math.max(240, cards.length * 42);
     const cx = 640;
     const cy = 440;
