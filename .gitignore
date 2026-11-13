@@ -1,0 +1,11 @@
+node_modules/
+data/
+*.db
+*.db-wal
+*.db-shm
+.superpowers/
+.worktrees/
+tests/e2e/screenshots/
+tests/e2e/results/
+*.log
+.DS_Store

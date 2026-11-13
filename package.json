@@ -1,0 +1,19 @@
+{
+  "name": "tessera",
+  "version": "1.0.0",
+  "description": "Sovereign Spatial Knowledge Studio, Bidirectional Wiki, Interactive Force/Canvas Board & FSRS v4.5 Recall Lab",
+  "type": "module",
+  "main": "src/server/index.js",
+  "scripts": {
+    "start": "node src/server/index.js",
+    "test": "node --test tests/unit/*.test.js tests/integration/*.test.js",
+    "test:unit": "node --test tests/unit/*.test.js",
+    "test:integration": "node --test tests/integration/*.test.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}

@@ -1,0 +1,131 @@
+:root {
+  /* Typography */
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+  --font-serif: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+  --font-mono: "SF Mono", "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* 8pt Spatial Scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 32px;
+  --space-6: 48px;
+
+  /* Radii & Motion */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-pill: 9999px;
+  --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-fast: 140ms;
+  --duration-med: 220ms;
+
+  /* Touch Target Floor */
+  --target-min: 44px;
+}
+
+/* Alabaster Daylight (Default Light Theme — WCAG AAA Contrast) */
+html[data-theme="light"] {
+  color-scheme: light;
+  --bg-canvas: #F6F5F0;
+  --bg-elevated: #FFFFFF;
+  --bg-subtle: #EEEDE6;
+  --bg-inset: #E5E3DA;
+  --bg-glass: rgba(255, 255, 255, 0.88);
+  --ink-primary: #181816;
+  --ink-secondary: #4D4C46;
+  --ink-muted: #65645D;
+  --hairline: rgba(24, 24, 22, 0.11);
+  --hairline-strong: rgba(24, 24, 22, 0.22);
+
+  --accent: #B83B14;
+  --accent-hover: #972E0E;
+  --accent-btn-bg: #B83B14;
+  --accent-btn-ink: #FFFFFF;
+  --accent-soft: rgba(184, 59, 20, 0.11);
+
+  --sage: #166534;
+  --sage-soft: rgba(22, 101, 52, 0.11);
+  --cobalt: #1E40AF;
+  --cobalt-soft: rgba(30, 64, 175, 0.10);
+  --amber: #92400E;
+  --amber-soft: rgba(146, 64, 14, 0.12);
+  --danger: #B91C1C;
+  --danger-soft: rgba(185, 28, 28, 0.11);
+
+  --shadow-sm: 0 1px 2px rgba(24, 24, 22, 0.06);
+  --shadow-md: 0 6px 20px rgba(24, 24, 22, 0.08), 0 1px 3px rgba(24, 24, 22, 0.05);
+  --shadow-lg: 0 18px 48px rgba(24, 24, 22, 0.14), 0 4px 12px rgba(24, 24, 22, 0.06);
+  --grid-dot: rgba(24, 24, 22, 0.14);
+}
+
+/* Warm Sepia Focus (Paper Mode) */
+html[data-theme="sepia"] {
+  color-scheme: light;
+  --bg-canvas: #F3EAD7;
+  --bg-elevated: #FBF6EA;
+  --bg-subtle: #EAE0CA;
+  --bg-inset: #DFD3B9;
+  --bg-glass: rgba(251, 246, 234, 0.90);
+  --ink-primary: #2B2118;
+  --ink-secondary: #534435;
+  --ink-muted: #685848;
+  --hairline: rgba(43, 33, 24, 0.13);
+  --hairline-strong: rgba(43, 33, 24, 0.25);
+
+  --accent: #9A3412;
+  --accent-hover: #7C2D12;
+  --accent-btn-bg: #9A3412;
+  --accent-btn-ink: #FFFFFF;
+  --accent-soft: rgba(154, 52, 18, 0.12);
+
+  --sage: #166534;
+  --sage-soft: rgba(22, 101, 52, 0.12);
+  --cobalt: #1E3A8A;
+  --cobalt-soft: rgba(30, 58, 138, 0.11);
+  --amber: #854D0E;
+  --amber-soft: rgba(133, 77, 14, 0.14);
+  --danger: #991B1B;
+  --danger-soft: rgba(153, 27, 27, 0.12);
+
+  --shadow-sm: 0 1px 2px rgba(43, 33, 24, 0.07);
+  --shadow-md: 0 6px 20px rgba(43, 33, 24, 0.10), 0 1px 3px rgba(43, 33, 24, 0.06);
+  --shadow-lg: 0 18px 48px rgba(43, 33, 24, 0.16), 0 4px 12px rgba(43, 33, 24, 0.07);
+  --grid-dot: rgba(43, 33, 24, 0.16);
+}
+
+/* Obsidian Studio (Dark Theme — Warm Charcoal, Zero Purple Slop) */
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --bg-canvas: #121315;
+  --bg-elevated: #1A1C1F;
+  --bg-subtle: #22252A;
+  --bg-inset: #2B2F36;
+  --bg-glass: rgba(26, 28, 31, 0.90);
+  --ink-primary: #F2EFE9;
+  --ink-secondary: #BBB6AE;
+  --ink-muted: #938F87;
+  --hairline: rgba(242, 239, 233, 0.11);
+  --hairline-strong: rgba(242, 239, 233, 0.22);
+
+  --accent: #F08056;
+  --accent-hover: #F59976;
+  --accent-btn-bg: #C2410C;
+  --accent-btn-ink: #FFFFFF;
+  --accent-soft: rgba(240, 128, 86, 0.16);
+
+  --sage: #4ADE80;
+  --sage-soft: rgba(74, 222, 128, 0.14);
+  --cobalt: #7DD3FC;
+  --cobalt-soft: rgba(125, 211, 252, 0.14);
+  --amber: #FBBF24;
+  --amber-soft: rgba(251, 191, 36, 0.14);
+  --danger: #FCA5A5;
+  --danger-soft: rgba(252, 165, 165, 0.15);
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 22px 54px rgba(0, 0, 0, 0.65);
+  --grid-dot: rgba(242, 239, 233, 0.14);
+}

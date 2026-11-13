@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#B83B14">
+  <title>Tessera — Spatial Knowledge Studio</title>
+  <link rel="icon" type="image/svg+xml" href="/icons/tessera.svg">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="stylesheet" href="/styles/tokens.css">
+  <link rel="stylesheet" href="/styles/base.css">
+  <link rel="stylesheet" href="/styles/layout.css">
+  <link rel="stylesheet" href="/styles/components.css">
+</head>
+<body>
+  <a href="#main-workspace" class="skip-link">Skip to main workspace</a>
+
+  <div id="app" class="app-shell">
+    <!-- Primary Navigation Rail (Desktop Left / Mobile Bottom) -->
+    <nav class="nav-rail" aria-label="Primary Workspaces">
+      <div class="nav-brand" title="Tessera Studio">
+        <img src="/icons/tessera.svg" alt="" width="32" height="32" class="brand-logo">
+        <span class="brand-wordmark">Tessera</span>
+      </div>
+
+      <div class="nav-items" role="tablist" aria-label="Workspaces">
+        <button type="button" class="nav-btn is-active" data-view="studio" role="tab" aria-selected="true" title="Studio Notes (1)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          <span class="nav-label">Studio</span>
+        </button>
+
+        <button type="button" class="nav-btn" data-view="graph" role="tab" aria-selected="false" title="Knowledge Graph (2)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="12" cy="18" r="3"/><line x1="8.5" y1="7.5" x2="15.5" y2="7.5"/><line x1="7.5" y1="8.5" x2="10.8" y2="15.3"/><line x1="16.5" y1="8.5" x2="13.2" y2="15.3"/></svg>
+          <span class="nav-label">Graph</span>
+        </button>
+
+        <button type="button" class="nav-btn" data-view="board" role="tab" aria-selected="false" title="Spatial Canvas (3)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="8" y="14" width="8" height="7" rx="1.5"/><path d="M10 6.5h4M6.5 10v4.5h1.5M17.5 10v4.5H16"/></svg>
+          <span class="nav-label">Canvas</span>
+        </button>
+
+        <button type="button" class="nav-btn" data-view="recall" role="tab" aria-selected="false" title="Recall Lab FSRS (4)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+          <span class="nav-label">Recall</span>
+          <span id="badge-due-cards" class="nav-badge" hidden>0</span>
+        </button>
+
+        <button type="button" class="nav-btn" data-view="tasks" role="tab" aria-selected="false" title="Tasks & Daily (5)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          <span class="nav-label">Tasks</span>
+          <span id="badge-open-tasks" class="nav-badge" hidden>0</span>
+        </button>
+      </div>
+
+      <div class="nav-footer">
+        <button type="button" id="btn-command-palette" class="nav-btn" title="Command Palette (Ctrl+K)" aria-label="Open Command Palette">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <span class="nav-label">Search</span>
+        </button>
+        <button type="button" id="btn-vault-modal" class="nav-btn" title="Vault Backup & Shortcuts" aria-label="Vault Export and Import">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span class="nav-label">Vault</span>
+        </button>
+        <button type="button" id="btn-theme-cycle" class="nav-btn" title="Switch Theme (Light / Sepia / Dark)" aria-label="Switch Color Theme">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+          <span id="theme-label" class="nav-label">Light</span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Main Workspace Viewport -->
+    <main id="main-workspace" class="main-workspace">
+      <header class="top-utility-bar">
+        <div class="utility-left">
+          <button type="button" id="btn-mobile-sidebar" class="icon-btn mobile-only" aria-label="Toggle Notes Sidebar" title="Notes">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
+          <span id="active-workspace-crumb" class="workspace-crumb">Studio</span>
+          <span id="ws-sync-pill" class="sync-pill is-connecting" title="Real-time WebSocket Sync">
+            <span class="sync-dot" aria-hidden="true"></span>
+            <span class="sync-text">Syncing</span>
+          </span>
+        </div>
+
+        <div class="utility-center">
+          <button type="button" id="btn-global-search-trigger" class="search-trigger" aria-label="Search notes and commands">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <span class="search-placeholder">Search vault, tags, or run command…</span>
+            <kbd class="kbd-chip">Ctrl K</kbd>
+          </button>
+        </div>
+
+        <div class="utility-right">
+          <button type="button" id="btn-daily-note" class="btn-secondary btn-sm" title="Open Today's Journal (D)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <span>Today</span>
+          </button>
+          <button type="button" id="btn-new-note" class="btn-primary btn-sm" title="Create Note (N)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span>New Note</span>
+          </button>
+        </div>
+      </header>
+
+      <div id="view-host" class="view-host">
+        <!-- Active view renders here -->
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal / Overlay Portals -->
+  <div id="modal-root" class="modal-root" hidden></div>
+  <div id="toast-root" class="toast-root" aria-live="polite" aria-atomic="true"></div>
+
+  <script type="module" src="/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,341 @@
+/* App Shell Layout — 8pt Grid & Responsive Breakpoints */
+
+.app-shell {
+  display: grid;
+  grid-template-columns: 76px 1fr;
+  height: 100dvh;
+  width: 100vw;
+  overflow: hidden;
+  background: var(--bg-canvas);
+}
+
+/* Navigation Rail */
+.nav-rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-2);
+  background: var(--bg-elevated);
+  border-right: 1px solid var(--hairline);
+  z-index: 30;
+  gap: var(--space-2);
+}
+
+.nav-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--hairline);
+  width: 100%;
+}
+
+.brand-wordmark {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-secondary);
+}
+
+.nav-items,
+.nav-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  width: 100%;
+}
+
+.nav-items {
+  flex: 1;
+  justify-content: flex-start;
+  padding-top: var(--space-1);
+}
+
+.nav-btn {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  width: 100%;
+  min-height: 48px;
+  min-width: 44px;
+  padding: 6px 4px;
+  border-radius: var(--radius-md);
+  color: var(--ink-secondary);
+  transition: background var(--duration-fast) ease, color var(--duration-fast) ease, transform var(--duration-fast) var(--ease-spring);
+}
+
+.nav-btn:hover {
+  background: var(--bg-subtle);
+  color: var(--ink-primary);
+}
+
+.nav-btn.is-active {
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.nav-label {
+  font-size: 10.5px;
+  line-height: 1.1;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.nav-badge {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: var(--radius-pill);
+  background: var(--accent-btn-bg);
+  color: var(--accent-btn-ink);
+  font-size: 10px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.nav-badge[hidden] {
+  display: none;
+}
+
+/* Main Workspace */
+.main-workspace {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.top-utility-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  height: 56px;
+  min-height: 56px;
+  padding: 0 var(--space-3);
+  background: var(--bg-elevated);
+  border-bottom: 1px solid var(--hairline);
+}
+
+.utility-left,
+.utility-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+.utility-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  min-width: 0;
+}
+
+.workspace-crumb {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--ink-primary);
+}
+
+.view-host {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.mobile-only {
+  display: none;
+}
+
+/* Studio 3-Pane Split */
+.studio-shell {
+  display: grid;
+  grid-template-columns: 272px 1fr 296px;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.studio-shell.is-inspector-collapsed {
+  grid-template-columns: 272px 1fr 0px;
+}
+
+.studio-sidebar {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--bg-canvas);
+  border-right: 1px solid var(--hairline);
+  overflow: hidden;
+}
+
+.studio-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  background: var(--bg-elevated);
+  overflow: hidden;
+}
+
+.studio-inspector {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  background: var(--bg-canvas);
+  border-left: 1px solid var(--hairline);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.studio-shell.is-inspector-collapsed .studio-inspector {
+  display: none;
+}
+
+/* Editor / Preview Panes */
+.editor-split-area {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.editor-split-area[data-mode="write"] {
+  grid-template-columns: 1fr;
+}
+.editor-split-area[data-mode="write"] .preview-pane {
+  display: none;
+}
+
+.editor-split-area[data-mode="read"] {
+  grid-template-columns: 1fr;
+}
+.editor-split-area[data-mode="read"] .editor-pane {
+  display: none;
+}
+
+/* Tablet / Small Laptop */
+@media (max-width: 1120px) {
+  .studio-shell {
+    grid-template-columns: 240px 1fr;
+  }
+  .studio-inspector {
+    position: fixed;
+    right: 0;
+    top: 56px;
+    bottom: 0;
+    width: 300px;
+    z-index: 45;
+    box-shadow: var(--shadow-lg);
+  }
+  .studio-shell.is-inspector-collapsed .studio-inspector {
+    display: none;
+  }
+}
+
+/* Mobile Layout (390x844 etc.) */
+@media (max-width: 780px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 64px;
+  }
+
+  .nav-rail {
+    grid-row: 2;
+    flex-direction: row;
+    justify-content: space-around;
+    padding: 4px var(--space-2);
+    border-right: none;
+    border-top: 1px solid var(--hairline);
+    height: 64px;
+  }
+
+  .nav-brand,
+  #btn-command-palette,
+  #btn-vault-modal {
+    display: none;
+  }
+
+  .nav-items {
+    flex-direction: row;
+    padding-top: 0;
+    justify-content: space-around;
+  }
+
+  .nav-footer {
+    width: auto;
+    flex-direction: row;
+    flex-shrink: 0;
+  }
+
+  .nav-btn {
+    width: auto;
+    min-width: 48px;
+    min-height: 48px;
+    padding: 4px 8px;
+  }
+
+  .main-workspace {
+    grid-row: 1;
+  }
+
+  .mobile-only {
+    display: inline-flex;
+  }
+
+  .utility-center {
+    display: none;
+  }
+
+  .studio-shell,
+  .studio-shell.is-inspector-collapsed {
+    grid-template-columns: 1fr;
+  }
+
+  .studio-sidebar {
+    position: fixed;
+    top: 56px;
+    left: 0;
+    bottom: 64px;
+    width: min(86vw, 310px);
+    z-index: 48;
+    box-shadow: var(--shadow-lg);
+    transform: translateX(-105%);
+    transition: transform var(--duration-med) var(--ease-spring);
+  }
+
+  .studio-sidebar.is-mobile-open {
+    transform: translateX(0);
+  }
+
+  .editor-split-area {
+    grid-template-columns: 1fr;
+  }
+  .editor-split-area[data-mode="split"] .preview-pane {
+    display: none;
+  }
+}

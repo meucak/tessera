@@ -1,0 +1,17 @@
+{
+  "name": "Tessera — Sovereign Knowledge Studio",
+  "short_name": "Tessera",
+  "description": "Local-first Spatial Knowledge Studio, Wiki, Graph Explorer, Spatial Canvas & FSRS Recall Lab",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F6F5F0",
+  "theme_color": "#B83B14",
+  "icons": [
+    {
+      "src": "/icons/tessera.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

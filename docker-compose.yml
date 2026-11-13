@@ -1,0 +1,25 @@
+services:
+  tessera:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tessera
+    restart: unless-stopped
+    ports:
+      - "8092:8092"
+    mem_limit: 256m
+    cpus: 0.75
+    environment:
+      - PORT=8092
+      - DB_PATH=/app/data/tessera.db
+      - NODE_ENV=production
+    volumes:
+      - tessera_data:/app/data
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8092/api/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  tessera_data:
